@@ -99,7 +99,7 @@
         // Funzione di simulazione delle penetrazioni con distribuzione graduale
         function simulatePenetration(m, n, p) {
             const results = Array.from({ length: m }, () => Array(n).fill(0));
-            const penetrationCounts = Array(m).fill(0);
+            const penetrationCounts = Array(n + 1).fill(0); // +1 per includere anche chi non ha penetrato server
 
             // Simulazione della penetrazione
             for (let hacker = 0; hacker < m; hacker++) {
@@ -111,7 +111,7 @@
                     }
                     results[hacker][server] = successCount;
                 }
-                penetrationCounts[hacker] = successCount;
+                penetrationCounts[successCount]++;
             }
 
             return { results, penetrationCounts };
@@ -264,4 +264,3 @@
     </script>
 </body>
 </html>
-
