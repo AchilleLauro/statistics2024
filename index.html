@@ -3,40 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penetration Simulation</title>
-    <!-- Includi Chart.js -->
+    <title>Statistics and Penetration Simulation</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #f0f0f0;
             color: #333;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            max-width: 1000px;
+            margin: auto;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        .content {
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .content p, .content ul {
+            margin-bottom: 10px;
         }
         .chart-container {
-            width: 80%;
-            margin-top: 30px;
+            width: 100%;
+            margin-bottom: 30px;
         }
         form {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-            width: 80%;
+            width: 100%;
         }
         label {
             font-weight: bold;
+            color: #4CAF50;
         }
         input[type="number"] {
             margin-right: 10px;
             padding: 5px;
-            width: 80px;
+            width: 60px;
         }
         button {
-            padding: 5px 10px;
+            padding: 5px 15px;
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -49,9 +59,50 @@
     </style>
 </head>
 <body>
+
+    <h1>Basic Notions in Statistics</h1>
+
+    <div class="content">
+        <h3>Population</h3>
+        <p>In statistics, the term population refers to the entire set of individuals, items, or events that are being studied. It represents the complete group from which a sample can be drawn for research purposes.</p>
+        <p><strong>Example:</strong> If the research focuses on the heights of adult men in a country, the population would include every adult man in that country.</p>
+        
+        <h3>Statistical Unit</h3>
+        <p>These are the individual elements or members of a population that are the subject of observation or measurement.</p>
+        <p><strong>Example:</strong> If the research focuses on the heights of adult men in a country, each adult man would be a statistical unit.</p>
+
+        <h3>Distribution</h3>
+        <p>A distribution is a function that shows the possible values for a variable and how often they occur. Distributions can be represented in various ways, including tables, graphs, or equations. The shape of a distribution (normal, skewed...) tells a lot about the data, including central tendencies and variability.</p>
+
+        <h3>Frequency</h3>
+        <ul>
+            <li><strong>Absolute frequency:</strong> Refers to the number of times a particular value or category occurs in a data set.</li>
+            <li><strong>Relative frequency:</strong> Is the proportion of times a value occurs relative to the total number of observations.</li>
+            <li><strong>Percentage frequency:</strong> Expresses the relative frequency as a percentage.</li>
+        </ul>
+
+        <h3>Notion of Arithmetic Average</h3>
+        <p>The arithmetic average, commonly known as the mean, is a measure of central tendency used in statistics to summarize a set of numerical values. It is calculated by taking the sum of all the values in a dataset and dividing it by the number of values.</p>
+
+        <h3>Median</h3>
+        <p>The median is the middle value in a dataset when the data is arranged in ascending or descending order. If the dataset has an odd number of values, the median is the middle value; if it has an even number, it is the average of the two middle values. The median is less sensitive to outliers than the arithmetic mean and is often used when the data is skewed.</p>
+
+        <h3>Mode</h3>
+        <p>The mode is the value that appears most frequently in a dataset. A dataset may have more than one mode (multimodal) if multiple values occur with the same highest frequency, or it may have no mode if all values are unique. The mode is useful for categorical data where the most common category is of interest.</p>
+
+        <h3>Computational Problems with Floating Point Representation</h3>
+        <ul>
+            <li><strong>Rounding Errors:</strong> Computers can only store numbers with finite precision, leading to rounding errors that can accumulate over many operations.</li>
+            <li><strong>Loss of Precision:</strong> When calculating large sums, small numbers may be swallowed by larger numbers, leading to loss of precision.</li>
+            <li><strong>Catastrophic Cancellation:</strong> When subtracting two nearly equal numbers, significant digits may be lost due to rounding errors.</li>
+        </ul>
+
+        <h3>Numerical Solution (Knuth's Approach)</h3>
+        <p>Knuth proposed techniques such as Kahan summation, which improves accuracy by tracking a correction factor for lost low-order bits.</p>
+    </div>
+
     <h1>Penetration Simulation</h1>
 
-    <!-- Form per impostare i parametri -->
     <form id="settingsForm">
         <div>
             <label for="numServers">Servers (n):</label>
@@ -68,7 +119,6 @@
         <button type="submit">Run Simulation</button>
     </form>
 
-    <!-- Canvases per i grafici -->
     <div class="chart-container">
         <canvas id="penetrationChart"></canvas>
     </div>
@@ -76,47 +126,40 @@
         <canvas id="distributionChart"></canvas>
     </div>
 
-    <!-- Codice JavaScript -->
     <script>
         const penetrationCtx = document.getElementById('penetrationChart').getContext('2d');
         const distributionCtx = document.getElementById('distributionChart').getContext('2d');
         let penetrationChart, distributionChart;
 
-        // Funzione per simulare la penetrazione cumulativa
         function simulateCumulativePenetration(n, m, p) {
             let results = Array(m).fill().map(() => [0]);
             let penetrationCounts = Array(m).fill(0);
 
             for (let i = 0; i < m; i++) {
                 let cumulative = 0;
-                for (let j = 1; j <= n; j++) {  // Gli attacchi partono dal Server 1
-                    if (Math.random() < p) {
-                        cumulative += 1;
-                    }
+                for (let j = 1; j <= n; j++) {
+                    if (Math.random() < p) cumulative++;
                     results[i].push(cumulative);
                 }
                 penetrationCounts[i] = cumulative;
             }
 
-            // Conta il numero di attaccanti che hanno penetrato un determinato numero di server
             const distribution = {};
-            for (let count of penetrationCounts) {
-                distribution[count] = (distribution[count] || 0) + 1;
-            }
+            for (let count of penetrationCounts) distribution[count] = (distribution[count] || 0) + 1;
 
             return { results, distribution };
         }
 
-        // Funzione per creare o aggiornare il grafico di penetrazione
         function updatePenetrationChart(n, m, p) {
             const { results, distribution } = simulateCumulativePenetration(n, m, p);
-            const labels = Array.from({ length: n }, (_, i) => `${i + 1}`); // Cambiato per far partire da 1
+            const labels = Array.from({ length: n }, (_, i) => `${i + 1}`);
             const datasets = results.map((result, index) => ({
                 label: `Attacker ${index + 1}`,
                 data: result,
-                borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
+                borderColor: `rgba(${Math.random() * 200 + 55}, ${Math.random() * 200 + 55}, ${Math.random() * 200 + 55}, 0.9)`,
                 fill: false,
-                stepped: true
+                stepped: true,
+                borderWidth: 2
             }));
 
             if (penetrationChart) {
@@ -133,25 +176,10 @@
                     },
                     options: {
                         scales: {
-                            y: {
-                                type: 'linear',
-                                min: 0,
-                                max: n,
-                                position: 'left',
-                                grid: {
-                                    display: false // Rimuove la quadrettatura
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false // Rimuove la quadrettatura
-                                }
-                            }
+                            y: { min: 0, max: n, grid: { display: false }, ticks: { color: '#555' } },
+                            x: { grid: { display: false }, ticks: { color: '#555' } }
                         },
-                        plugins: {
-                            legend: { display: false }, // Rimuove la legenda
-                            tooltip: { mode: 'index', intersect: false }
-                        }
+                        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } }
                     }
                 });
             }
@@ -159,7 +187,6 @@
             updateDistributionChart(distribution, n);
         }
 
-        // Funzione per creare o aggiornare il grafico di distribuzione
         function updateDistributionChart(distribution, maxServers) {
             const distributionLabels = Array.from({ length: maxServers + 1 }, (_, i) => `${i}`);
             const distributionData = distributionLabels.map(label => distribution[label] || 0);
@@ -176,35 +203,22 @@
                         datasets: [{
                             label: 'Number of Attackers',
                             data: distributionData,
-                            backgroundColor: 'rgba(0, 123, 255, 0.7)',
-                            borderColor: 'rgba(0, 123, 255, 1)',
+                            backgroundColor: 'rgba(70, 130, 180, 0.8)',
+                            borderColor: 'rgba(70, 130, 180, 1)',
                             borderWidth: 1
                         }]
                     },
                     options: {
                         scales: {
-                            y: {
-                                type: 'linear',
-                                min: 0,
-                                ticks: { precision: 0 }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Servers Penetrated'
-                                }
-                            }
+                            y: { ticks: { precision: 0, color: '#555' }, grid: { display: false } },
+                            x: { grid: { display: false }, ticks: { color: '#555' } }
                         },
-                        plugins: {
-                            legend: { display: false }, // Rimuove la legenda
-                            tooltip: { mode: 'index', intersect: false }
-                        }
+                        plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } }
                     }
                 });
             }
         }
 
-        // Gestore di eventi per il form
         document.getElementById('settingsForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const n = parseInt(document.getElementById('numServers').value);
@@ -213,11 +227,7 @@
             updatePenetrationChart(n, m, p);
         });
 
-        // Render iniziale
         updatePenetrationChart(10, 5, 0.5);
     </script>
 </body>
 </html>
-
-
-
