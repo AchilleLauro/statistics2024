@@ -120,7 +120,7 @@
         // Funzione per creare o aggiornare il grafico di penetrazione
         function updatePenetrationChart(n, m, p) {
             const { results, penetrationCounts } = simulatePenetration(m, n, p);
-            const labels = Array.from({ length: n }, (_, i) => i + 1);
+            const labels = Array.from({ length: n }, (_, i) => i); // L'asse X parte da 0
             const datasets = results.map((result, index) => ({
                 label: `Attacker ${index + 1}`,
                 data: result,
@@ -264,3 +264,4 @@
     </script>
 </body>
 </html>
+
