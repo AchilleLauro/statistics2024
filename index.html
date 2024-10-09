@@ -9,35 +9,39 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f9f9f9;
             color: #333;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
-        canvas {
-            margin-bottom: 30px;
+        .chart-container {
+            width: 80%;
+            margin-top: 30px;
         }
         form {
             margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
         }
         label {
             font-weight: bold;
         }
         input[type="number"] {
-            margin-right: 20px;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-        }
-        .chart-container {
-            width: 45%;
+            margin-right: 10px;
+            padding: 5px;
+            width: 80px;
         }
         button {
+            padding: 5px 10px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
         }
         button:hover {
             background-color: #45a049;
@@ -49,23 +53,27 @@
 
     <!-- Form per impostare i parametri -->
     <form id="settingsForm">
-        <label for="numServers">Number of Servers:</label>
-        <input type="number" id="numServers" value="10" min="1" required>
-        <label for="numAttackers">Number of Attackers:</label>
-        <input type="number" id="numAttackers" value="4" min="1" required>
-        <label for="penetrationProbability">Penetration Probability (0-1):</label>
-        <input type="number" id="penetrationProbability" value="0.3" step="0.1" min="0" max="1" required>
+        <div>
+            <label for="numServers">Servers (n):</label>
+            <input type="number" id="numServers" value="10" min="1" required>
+        </div>
+        <div>
+            <label for="numAttackers">Attackers (m):</label>
+            <input type="number" id="numAttackers" value="5" min="1" required>
+        </div>
+        <div>
+            <label for="penetrationProbability">Probability (p):</label>
+            <input type="number" id="penetrationProbability" value="0.5" step="0.1" min="0" max="1" required>
+        </div>
         <button type="submit">Run Simulation</button>
     </form>
 
     <!-- Canvases per i grafici -->
-    <div class="container">
-        <div class="chart-container">
-            <canvas id="penetrationChart" width="600" height="400"></canvas>
-        </div>
-        <div class="chart-container">
-            <canvas id="distributionChart" width="600" height="400"></canvas>
-        </div>
+    <div class="chart-container">
+        <canvas id="penetrationChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="distributionChart"></canvas>
     </div>
 
     <!-- Codice JavaScript -->
@@ -76,7 +84,7 @@
 
         // Funzione per simulare la penetrazione cumulativa
         function simulateCumulativePenetration(n, m, p) {
-            let results = Array(m).fill().map(() => []);
+            let results = Array(m).fill().map(() => [0]);
             let penetrationCounts = Array(m).fill(0);
 
             for (let i = 0; i < m; i++) {
@@ -102,8 +110,9 @@
         // Funzione per creare o aggiornare il grafico di penetrazione
         function updatePenetrationChart(n, m, p) {
             const { results, distribution } = simulateCumulativePenetration(n, m, p);
-            const labels = Array.from({ length: n }, (_, i) => `${i}`);  // L'asse X parte da Server 0
-            const datasets = results.map((result) => ({
+            const labels = Array.from({ length: n }, (_, i) => `${i}`);
+            const datasets = results.map((result, index) => ({
+                label: `Attacker ${index + 1}`,
                 data: result,
                 borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
                 fill: false,
@@ -111,7 +120,7 @@
             }));
 
             if (penetrationChart) {
-                penetrationChart.data.labels = labels;
+                penetrationChart.data.labels = ['Start', ...labels];
                 penetrationChart.data.datasets = datasets;
                 penetrationChart.options.scales.y.max = n;
                 penetrationChart.update();
@@ -119,7 +128,7 @@
                 penetrationChart = new Chart(penetrationCtx, {
                     type: 'line',
                     data: {
-                        labels: labels,
+                        labels: ['Start', ...labels],
                         datasets: datasets
                     },
                     options: {
@@ -128,18 +137,19 @@
                                 type: 'linear',
                                 min: 0,
                                 max: n,
-                                position: 'left'
+                                position: 'left',
+                                grid: {
+                                    display: false // Rimuove la quadrettatura
+                                }
                             },
                             x: {
                                 grid: {
-                                    display: false // Rimuovi la quadrettatura
+                                    display: false // Rimuove la quadrettatura
                                 }
                             }
                         },
                         plugins: {
-                            legend: {
-                                display: false // Rimuovi la legenda
-                            },
+                            legend: { display: false }, // Rimuove la legenda
                             tooltip: { mode: 'index', intersect: false }
                         }
                     }
@@ -164,6 +174,7 @@
                     data: {
                         labels: distributionLabels,
                         datasets: [{
+                            label: 'Number of Attackers',
                             data: distributionData,
                             backgroundColor: 'rgba(0, 123, 255, 0.7)',
                             borderColor: 'rgba(0, 123, 255, 1)',
@@ -181,16 +192,11 @@
                                 title: {
                                     display: true,
                                     text: 'Servers Penetrated'
-                                },
-                                grid: {
-                                    display: false // Rimuovi la quadrettatura
                                 }
                             }
                         },
                         plugins: {
-                            legend: {
-                                display: false // Rimuovi la legenda
-                            },
+                            legend: { display: false }, // Rimuove la legenda
                             tooltip: { mode: 'index', intersect: false }
                         }
                     }
@@ -208,7 +214,8 @@
         });
 
         // Render iniziale
-        updatePenetrationChart(10, 4, 0.3);
+        updatePenetrationChart(10, 5, 0.5);
     </script>
 </body>
 </html>
+
