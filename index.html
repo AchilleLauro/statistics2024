@@ -14,22 +14,62 @@
             padding: 20px;
             display: flex;
             justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        form label {
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        form input {
+            padding: 5px;
+            margin-right: 10px;
+            width: 80px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 700px;
         }
+
         canvas {
-            margin-bottom: 30px;
-        }
-        form {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        label {
-            font-weight: bold;
-        }
-        input[type="number"] {
-            margin-right: 20px;
-            padding: 8px;
+            width: 100% !important;
+            height: auto !important;
+            max-width: 600px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -38,18 +78,19 @@
 
     <!-- Form per impostare i parametri -->
     <form id="settingsForm">
-        <label for="numServers">Number of Servers (n):</label>
+        <label for="numServers">Servers (n):</label>
         <input type="number" id="numServers" value="300" min="1" required>
-        <label for="numAttackers">Number of Attackers (m):</label>
+        <label for="numAttackers">Attackers (m):</label>
         <input type="number" id="numAttackers" value="2" min="1" required>
-        <label for="penetrationProbability">Penetration Probability (0-1):</label>
+        <label for="penetrationProbability">Probability (p):</label>
         <input type="number" id="penetrationProbability" value="0.7" step="0.1" min="0" max="1" required>
         <button type="submit">Run Simulation</button>
     </form>
 
-    <!-- Canvases per i grafici -->
-    <canvas id="penetrationChart" width="600" height="400"></canvas>
-    <canvas id="distributionChart" width="600" height="400"></canvas>
+    <div class="chart-container">
+        <canvas id="penetrationChart"></canvas>
+        <canvas id="distributionChart"></canvas>
+    </div>
 
     <!-- Codice JavaScript -->
     <script>
@@ -64,7 +105,6 @@
             for (let hacker = 0; hacker < m; hacker++) {
                 let successCount = 0;
 
-                // Distribuzione più graduale
                 for (let server = 0; server < n; server++) {
                     if (Math.random() < p) {
                         successCount++;
@@ -95,10 +135,9 @@
             if (penetrationChart) {
                 penetrationChart.data.labels = labels;
                 penetrationChart.data.datasets = datasets;
-                
-                // Aggiorna dinamicamente i limiti degli assi X e Y
-                penetrationChart.options.scales.x.max = n;
-                penetrationChart.options.scales.y.max = Math.max(...penetrationCounts);
+
+                // Imposta il limite massimo dell'asse Y al numero di server
+                penetrationChart.options.scales.y.max = n;
 
                 penetrationChart.update();
             } else {
@@ -117,7 +156,10 @@
                                     text: 'Servers',
                                 },
                                 min: 0,
-                                max: n
+                                max: n,
+                                grid: {
+                                    display: false // Rimuove la griglia
+                                }
                             },
                             y: {
                                 title: {
@@ -125,9 +167,12 @@
                                     text: 'Penetrations',
                                 },
                                 min: 0,
-                                max: Math.max(...penetrationCounts),
+                                max: n,  // Il limite massimo Y è il numero di server
                                 ticks: {
                                     stepSize: 1
+                                },
+                                grid: {
+                                    display: false // Rimuove la griglia
                                 }
                             }
                         },
@@ -152,7 +197,7 @@
             if (distributionChart) {
                 distributionChart.data.labels = distributionLabels;
                 distributionChart.data.datasets[0].data = distributionData;
-                
+
                 // Aggiorna dinamicamente i limiti dell'asse X
                 distributionChart.options.scales.x.max = maxServers;
 
@@ -179,7 +224,10 @@
                                     text: 'Number of Hackers',
                                 },
                                 beginAtZero: true,
-                                ticks: { stepSize: 1 }
+                                ticks: { stepSize: 1 },
+                                grid: {
+                                    display: false // Rimuove la griglia
+                                }
                             },
                             x: {
                                 title: {
@@ -187,7 +235,10 @@
                                     text: 'Servers Penetrated'
                                 },
                                 min: 0,
-                                max: maxServers
+                                max: maxServers,
+                                grid: {
+                                    display: false // Rimuove la griglia
+                                }
                             }
                         },
                         plugins: {
@@ -213,3 +264,4 @@
     </script>
 </body>
 </html>
+
