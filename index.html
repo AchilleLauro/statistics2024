@@ -12,64 +12,25 @@
             background-color: #f5f5f5;
             color: #333;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
         }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        form {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 700px;
-        }
-
-        form label {
-            font-size: 14px;
-            margin-right: 5px;
-        }
-
-        form input {
-            padding: 5px;
-            margin-right: 10px;
-            width: 80px;
-        }
-
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .chart-container {
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 700px;
-        }
-
         canvas {
-            width: 100% !important;
-            height: auto !important;
-            max-width: 600px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="number"] {
+            margin-right: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .chart-container {
+            width: 45%;
         }
     </style>
 </head>
@@ -78,71 +39,75 @@
 
     <!-- Form per impostare i parametri -->
     <form id="settingsForm">
-        <label for="numServers">Servers (n):</label>
-        <input type="number" id="numServers" value="300" min="1" required>
-        <label for="numAttackers">Attackers (m):</label>
-        <input type="number" id="numAttackers" value="2" min="1" required>
-        <label for="penetrationProbability">Probability (p):</label>
-        <input type="number" id="penetrationProbability" value="0.7" step="0.1" min="0" max="1" required>
+        <label for="numServers">Number of Servers:</label>
+        <input type="number" id="numServers" value="10" min="1" required>
+        <label for="numAttackers">Number of Attackers:</label>
+        <input type="number" id="numAttackers" value="4" min="1" required>
+        <label for="penetrationProbability">Penetration Probability (0-1):</label>
+        <input type="number" id="penetrationProbability" value="0.3" step="0.1" min="0" max="1" required>
         <button type="submit">Run Simulation</button>
     </form>
 
-    <div class="chart-container">
-        <canvas id="penetrationChart"></canvas>
-        <canvas id="distributionChart"></canvas>
+    <!-- Canvases per i grafici -->
+    <div class="container">
+        <div class="chart-container">
+            <canvas id="penetrationChart" width="600" height="400"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="distributionChart" width="600" height="400"></canvas>
+        </div>
     </div>
 
     <!-- Codice JavaScript -->
     <script>
+        const penetrationCtx = document.getElementById('penetrationChart').getContext('2d');
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
         let penetrationChart, distributionChart;
 
-        // Funzione di simulazione delle penetrazioni con distribuzione graduale
-        function simulatePenetration(m, n, p) {
-            const results = Array.from({ length: m }, () => Array(n).fill(0));
-            const penetrationCounts = Array(n + 1).fill(0); // +1 per includere anche chi non ha penetrato server
+        // Funzione per simulare la penetrazione cumulativa
+        function simulateCumulativePenetration(n, m, p) {
+            let results = Array(m).fill().map(() => []);
+            let penetrationCounts = Array(m).fill(0);
 
-            // Simulazione della penetrazione
-            for (let hacker = 0; hacker < m; hacker++) {
-                let successCount = 0;
-
-                for (let server = 0; server < n; server++) {
+            for (let i = 0; i < m; i++) {
+                let cumulative = 0;
+                for (let j = 1; j <= n; j++) {  // Corretto: inizia da Server 1
                     if (Math.random() < p) {
-                        successCount++;
+                        cumulative += 1;
                     }
-                    results[hacker][server] = successCount;
+                    results[i].push(cumulative);
                 }
-                penetrationCounts[successCount]++;
+                penetrationCounts[i] = cumulative;
             }
 
-            return { results, penetrationCounts };
+            // Conta il numero di attaccanti che hanno penetrato un determinato numero di server
+            const distribution = {};
+            for (let count of penetrationCounts) {
+                distribution[count] = (distribution[count] || 0) + 1;
+            }
+
+            return { results, distribution };
         }
 
         // Funzione per creare o aggiornare il grafico di penetrazione
         function updatePenetrationChart(n, m, p) {
-            const { results, penetrationCounts } = simulatePenetration(m, n, p);
-            const labels = Array.from({ length: n }, (_, i) => i); // L'asse X parte da 0
+            const { results, distribution } = simulateCumulativePenetration(n, m, p);
+            const labels = Array.from({ length: n }, (_, i) => `${i + 1}`);  // Corretto: etichette da Server 1
             const datasets = results.map((result, index) => ({
                 label: `Attacker ${index + 1}`,
                 data: result,
                 borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
                 fill: false,
-                stepped: true,
-                pointRadius: 0,
-                lineTension: 0
+                stepped: true
             }));
 
-            // Crea o aggiorna il grafico
             if (penetrationChart) {
                 penetrationChart.data.labels = labels;
                 penetrationChart.data.datasets = datasets;
-
-                // Imposta il limite massimo dell'asse Y al numero di server
                 penetrationChart.options.scales.y.max = n;
-
                 penetrationChart.update();
             } else {
-                const ctx = document.getElementById('penetrationChart').getContext('2d');
-                penetrationChart = new Chart(ctx, {
+                penetrationChart = new Chart(penetrationCtx, {
                     type: 'line',
                     data: {
                         labels: labels,
@@ -150,61 +115,34 @@
                     },
                     options: {
                         scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Servers',
-                                },
+                            y: {
+                                type: 'linear',
                                 min: 0,
                                 max: n,
-                                grid: {
-                                    display: false // Rimuove la griglia
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: 'Penetrations',
-                                },
-                                min: 0,
-                                max: n,  // Il limite massimo Y è il numero di server
-                                ticks: {
-                                    stepSize: 1
-                                },
-                                grid: {
-                                    display: false // Rimuove la griglia
-                                }
+                                position: 'left'
                             }
                         },
                         plugins: {
-                            tooltip: { mode: 'index', intersect: false },
-                            legend: { display: false } // Nasconde la legenda
+                            tooltip: { mode: 'index', intersect: false }
                         }
                     }
                 });
             }
 
-            // Aggiorna anche il grafico della distribuzione
-            updateDistributionChart(penetrationCounts, n);
+            updateDistributionChart(distribution, n);
         }
 
         // Funzione per creare o aggiornare il grafico di distribuzione
         function updateDistributionChart(distribution, maxServers) {
             const distributionLabels = Array.from({ length: maxServers + 1 }, (_, i) => `${i}`);
-            const distributionData = distributionLabels.map(label => distribution[Number(label)] || 0);
+            const distributionData = distributionLabels.map(label => distribution[label] || 0);
 
-            // Crea o aggiorna il grafico di distribuzione
             if (distributionChart) {
                 distributionChart.data.labels = distributionLabels;
                 distributionChart.data.datasets[0].data = distributionData;
-
-                // Aggiorna dinamicamente i limiti dell'asse X
-                distributionChart.options.scales.x.max = maxServers;
-
                 distributionChart.update();
             } else {
-                const ctx = document.getElementById('distributionChart').getContext('2d');
-                distributionChart = new Chart(ctx, {
+                distributionChart = new Chart(distributionCtx, {
                     type: 'bar',
                     data: {
                         labels: distributionLabels,
@@ -219,31 +157,19 @@
                     options: {
                         scales: {
                             y: {
-                                title: {
-                                    display: true,
-                                    text: 'Number of Hackers',
-                                },
-                                beginAtZero: true,
-                                ticks: { stepSize: 1 },
-                                grid: {
-                                    display: false // Rimuove la griglia
-                                }
+                                type: 'linear',
+                                min: 0,
+                                ticks: { precision: 0 }
                             },
                             x: {
                                 title: {
                                     display: true,
                                     text: 'Servers Penetrated'
-                                },
-                                min: 0,
-                                max: maxServers,
-                                grid: {
-                                    display: false // Rimuove la griglia
                                 }
                             }
                         },
                         plugins: {
-                            tooltip: { mode: 'index', intersect: false },
-                            legend: { display: false }
+                            tooltip: { mode: 'index', intersect: false }
                         }
                     }
                 });
@@ -260,7 +186,7 @@
         });
 
         // Render iniziale
-        updatePenetrationChart(300, 2, 0.7);
+        updatePenetrationChart(10, 4, 0.3);
     </script>
 </body>
 </html>
