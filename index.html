@@ -45,7 +45,8 @@
         }
         #chartContainer {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            flex-direction: column;
             width: 80%;
         }
     </style>
@@ -67,7 +68,7 @@
     <!-- Canvas for Line Chart and Histogram -->
     <div id="chartContainer">
         <canvas id="lineChart" width="600" height="400"></canvas>
-        <canvas id="histogramChart" width="400" height="400"></canvas>
+        <canvas id="histogramChart" width="600" height="400"></canvas>
     </div>
 
     <!-- JavaScript Code -->
@@ -96,7 +97,7 @@
 
         // Function to create or update the Line Chart
         function updateLineChart(results, m, n) {
-            const labels = Array.from({ length: n }, (_, i) => `Server ${i + 1}`);
+            const labels = Array.from({ length: n }, (_, i) => `${i + 1}`);
             const datasets = results.map((result, index) => ({
                 label: `Hacker ${index + 1}`,
                 data: result,
@@ -140,6 +141,11 @@
                                     text: 'Servers',
                                     color: 'black',
                                     font: { size: 14 }
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value; // Display numeric values (1, 2, 3...)
+                                    }
                                 }
                             }
                         }
@@ -150,7 +156,7 @@
 
         // Function to create or update the Histogram
         function updateHistogramChart(penetrationCounts, n) {
-            const labels = Array.from({ length: n + 1 }, (_, i) => `${i} Servers`);
+            const labels = Array.from({ length: n + 1 }, (_, i) => `${i}`);
             const counts = Array(n + 1).fill(0);
             penetrationCounts.forEach(count => counts[count]++);
 
@@ -196,6 +202,11 @@
                                     text: 'Penetrations',
                                     color: 'black',
                                     font: { size: 14 }
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value; // Display numeric values (0, 1, 2...)
+                                    }
                                 }
                             }
                         }
@@ -219,4 +230,3 @@
     </script>
 </body>
 </html>
-
