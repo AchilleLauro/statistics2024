@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Notions in Statistics</title>
+    <title>Statistics and Penetration Simulation</title>
+    <!-- Includi Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+        }
+        canvas {
+            margin-bottom: 30px;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="number"] {
+            margin-right: 20px;
         }
         h1, h2, h3 {
             color: #2c3e50;
@@ -26,6 +41,7 @@
 </head>
 <body>
 
+    <!-- Sezione sulle nozioni statistiche -->
     <h1>Basic Notions in Statistics</h1>
 
     <div class="section">
@@ -36,7 +52,7 @@
 
     <div class="section">
         <h2>Statistical Unit</h2>
-        <p>These are tthe individual elements or members of a population that are the subject of observation or measurement.</p>
+        <p>These are the individual elements or members of a population that are the subject of observation or measurement.</p>
         <p><strong>Example:</strong> If the research focuses on the heights of adult men in a country, each adult man would be a statistical unit.</p>
     </div>
 
@@ -77,6 +93,155 @@
         <h2>Numerical Solution (Knuth's Approach)</h2>
         <p>Knuth proposed various techniques and algorithms to minimize floating-point errors. One of the solutions he suggested is Kahan summation, also known as compensated summation, which improves the accuracy of summing floating-point numbers by keeping track of a small correction factor for lost low-order bits.</p>
     </div>
+
+    <!-- Sezione della simulazione di penetrazione -->
+    <h1>Penetration Simulation</h1>
+
+    <!-- Form per impostare i parametri -->
+    <form id="settingsForm">
+        <label for="numServers">Number of Servers:</label>
+        <input type="number" id="numServers" value="10" min="1" required>
+        <label for="numAttackers">Number of Attackers:</label>
+        <input type="number" id="numAttackers" value="5" min="1" required>
+        <label for="penetrationProbability">Penetration Probability (0-1):</label>
+        <input type="number" id="penetrationProbability" value="0.4" step="0.1" min="0" max="1" required>
+        <button type="submit">Generate</button>
+    </form>
+
+    <!-- Canvases per i grafici -->
+    <canvas id="penetrationChart" width="600" height="400"></canvas>
+    <canvas id="distributionChart" width="600" height="400"></canvas>
+
+    <!-- Codice JavaScript -->
+    <script>
+        const penetrationCtx = document.getElementById('penetrationChart').getContext('2d');
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+        let penetrationChart, distributionChart;
+
+        // Funzione per simulare la penetrazione cumulativa
+        function simulateCumulativePenetration(n, m, p) {
+            let results = Array(m).fill().map(() => [0]);
+            let penetrationCounts = Array(m).fill(0);
+
+            for (let i = 0; i < m; i++) {
+                let cumulative = 0;
+                for (let j = 0; j < n; j++) {
+                    if (Math.random() < p) {
+                        cumulative += 1;
+                    }
+                    results[i].push(cumulative);
+                }
+                penetrationCounts[i] = cumulative;
+            }
+
+            // Conta il numero di attaccanti che hanno penetrato un determinato numero di server
+            const distribution = {};
+            for (let count of penetrationCounts) {
+                distribution[count] = (distribution[count] || 0) + 1;
+            }
+
+            return { results, distribution };
+        }
+
+        // Funzione per creare o aggiornare il grafico di penetrazione
+        function updatePenetrationChart(n, m, p) {
+            const { results, distribution } = simulateCumulativePenetration(n, m, p);
+            const labels = Array.from({ length: n }, (_, i) => `Server ${i + 1}`);
+            const datasets = results.map((result, index) => ({
+                label: `Attacker ${index + 1}`,
+                data: result,
+                borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
+                fill: false,
+                stepped: true
+            }));
+
+            if (penetrationChart) {
+                penetrationChart.data.labels = ['Start', ...labels];
+                penetrationChart.data.datasets = datasets;
+                penetrationChart.options.scales.y.max = n;
+                penetrationChart.update();
+            } else {
+                penetrationChart = new Chart(penetrationCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Start', ...labels],
+                        datasets: datasets
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                min: 0,
+                                max: n,
+                                position: 'left'
+                            }
+                        },
+                        plugins: {
+                            tooltip: { mode: 'index', intersect: false }
+                        }
+                    }
+                });
+            }
+
+            updateDistributionChart(distribution, n);
+        }
+
+        // Funzione per creare o aggiornare il grafico di distribuzione
+        function updateDistributionChart(distribution, maxServers) {
+            const distributionLabels = Array.from({ length: maxServers + 1 }, (_, i) => `${i}`);
+            const distributionData = distributionLabels.map(label => distribution[label] || 0);
+
+            if (distributionChart) {
+                distributionChart.data.labels = distributionLabels;
+                distributionChart.data.datasets[0].data = distributionData;
+                distributionChart.update();
+            } else {
+                distributionChart = new Chart(distributionCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: distributionLabels,
+                        datasets: [{
+                            label: 'Number of Attackers',
+                            data: distributionData,
+                            backgroundColor: 'rgba(0, 123, 255, 0.7)',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                min: 0,
+                                ticks: { precision: 0 }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Servers Penetrated'
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: { mode: 'index', intersect: false }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Gestore di eventi per il form
+        document.getElementById('settingsForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const n = parseInt(document.getElementById('numServers').value);
+            const m = parseInt(document.getElementById('numAttackers').value);
+            const p = parseFloat(document.getElementById('penetrationProbability').value);
+            updatePenetrationChart(n, m, p);
+        });
+
+        // Render iniziale
+        updatePenetrationChart(10, 5, 0.4);
+    </script>
 
 </body>
 </html>
