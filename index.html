@@ -38,36 +38,42 @@
         <h3>Mode</h3>
         <p>The mode is the value that appears most frequently in a dataset. A dataset may have more than one mode (multimodal) if multiple values occur with the same highest frequency, or it may have no mode if all values are unique.</p>
 
-        <h3>Numerical Solution (Knuth's Approach)</h3>
-        <p>Knuth proposed various techniques and algorithms to minimize floating-point errors. One of the solutions he suggested is Kahan summation, also known as compensated summation, which improves the accuracy of summing floating-point numbers by keeping track of a small correction factor for lost low-order bits.</p>
+        <h3>Computational Problems with Floating Point Representation</h3>
+        <ul>
+            <li><strong>Rounding Errors:</strong> Computers can only store numbers with finite precision, leading to rounding errors that can accumulate over many operations.</li>
+            <li><strong>Loss of Precision:</strong> When calculating large sums, small numbers may be swallowed by larger numbers, leading to loss of precision.</li>
+            <li><strong>Catastrophic Cancellation:</strong> When subtracting two nearly equal numbers, significant digits may be lost due to rounding errors.</li>
+        </ul>
 
+        <h3>Numerical Solution (Knuth's Approach)</h3>
+        <p>Knuth proposed techniques such as Kahan summation, which improves accuracy by tracking a correction factor for lost low-order bits.</p>
     </div>
 
     <h1>Penetration Simulation</h1>
 
-    <form id="settingsForm">
+    <form id="configForm">
         <div>
-            <label for="numServers">Servers (n):</label>
-            <input type="number" id="numServers" value="10" min="1" required>
+            <label for="serverCount">Servers (n):</label>
+            <input type="number" id="serverCount" value="10" min="1" required>
         </div>
         <div>
-            <label for="numAttackers">Attackers (m):</label>
-            <input type="number" id="numAttackers" value="5" min="1" required>
+            <label for="hackerCount">Attackers (m):</label>
+            <input type="number" id="hackerCount" value="5" min="1" required>
         </div>
         <div>
-            <label for="penetrationProbability">Probability (p):</label>
-            <input type="number" id="penetrationProbability" value="0.5" step="0.1" min="0" max="1" required>
+            <label for="penetrationProb">Probability (p):</label>
+            <input type="number" id="penetrationProb" value="0.5" step="0.1" min="0" max="1" required>
         </div>
-        <button type="submit">Run</button>
+        <button type="submit">Run Simulation</button>
     </form>
 
     <div class="chart-container">
-        <canvas id="penetrationChart"></canvas>
+        <canvas id="serverPenetrationChart"></canvas>
     </div>
     <div class="chart-container">
-        <canvas id="distributionChart"></canvas>
+        <canvas id="attackerDistributionChart"></canvas>
     </div>
 
-    <script src="script.js"></script>
+    <script src="simulation.js"></script>
 </body>
 </html>
