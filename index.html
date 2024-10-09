@@ -3,177 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Penetration Simulation</title>
-    <!-- Includi Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Basic Notions in Statistics</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            padding: 20px;
+            margin: 20px;
+            line-height: 1.6;
         }
-        canvas {
-            margin-bottom: 30px;
+        h1, h2, h3 {
+            color: #2c3e50;
         }
-        form {
-            margin-bottom: 30px;
+        p {
+            margin-bottom: 20px;
         }
-        label {
-            font-weight: bold;
+        ul {
+            margin-bottom: 20px;
         }
-        input[type="number"] {
-            margin-right: 20px;
+        .section {
+            margin-bottom: 40px;
         }
     </style>
 </head>
 <body>
-    <h1>Penetration Simulation</h1>
 
-    <!-- Form per impostare i parametri -->
-    <form id="settingsForm">
-        <label for="numServers">Number of Servers:</label>
-        <input type="number" id="numServers" value="10" min="1" required>
-        <label for="numAttackers">Number of Attackers:</label>
-        <input type="number" id="numAttackers" value="5" min="1" required>
-        <label for="penetrationProbability">Penetration Probability (0-1):</label>
-        <input type="number" id="penetrationProbability" value="0.4" step="0.1" min="0" max="1" required>
-        <button type="submit">Generate</button>
-    </form>
+    <h1>Basic Notions in Statistics</h1>
 
-    <!-- Canvases per i grafici -->
-    <canvas id="penetrationChart" width="600" height="400"></canvas>
-    <canvas id="distributionChart" width="600" height="400"></canvas>
+    <div class="section">
+        <h2>Population</h2>
+        <p>In statistics, the term population refers to the entire set of individuals, items, or events that are being studied. It represents the complete group from which a sample can be drawn for research purposes.</p>
+        <p><strong>Example:</strong> If the research focuses on the heights of adult men in a country, the population would include every adult man in that country.</p>
+    </div>
 
-    <!-- Codice JavaScript -->
-    <script>
-        const penetrationCtx = document.getElementById('penetrationChart').getContext('2d');
-        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-        let penetrationChart, distributionChart;
+    <div class="section">
+        <h2>Statistical Unit</h2>
+        <p>These are the individual elements or members of a population that are the subject of observation or measurement.</p>
+        <p><strong>Example:</strong> If the research focuses on the heights of adult men in a country, each adult man would be a statistical unit.</p>
+    </div>
 
-        // Funzione per simulare la penetrazione cumulativa
-        function simulateCumulativePenetration(n, m, p) {
-            let results = Array(m).fill().map(() => [0]);
-            let penetrationCounts = Array(m).fill(0);
+    <div class="section">
+        <h2>Distribution</h2>
+        <p>A distribution is a function that shows the possible values for a variable and how often they occur. Distributions can be represented in various ways, including tables, graphs, or equations. The shape of a distribution (normal, skewed...) tells a lot about the data, including central tendencies and variability.</p>
+    </div>
 
-            for (let i = 0; i < m; i++) {
-                let cumulative = 0;
-                for (let j = 0; j < n; j++) {
-                    if (Math.random() < p) {
-                        cumulative += 1;
-                    }
-                    results[i].push(cumulative);
-                }
-                penetrationCounts[i] = cumulative;
-            }
+    <div class="section">
+        <h2>Frequency</h2>
+        <ul>
+            <li><strong>Absolute frequency:</strong> Refers to the number of times a particular value or category occurs in a data set.</li>
+            <li><strong>Relative frequency:</strong> Is the proportion of times a value occurs relative to the total number of observations.</li>
+            <li><strong>Percentage frequency:</strong> Expresses the relative frequency as a percentage.</li>
+        </ul>
+    </div>
 
-            // Conta il numero di attaccanti che hanno penetrato un determinato numero di server
-            const distribution = {};
-            for (let count of penetrationCounts) {
-                distribution[count] = (distribution[count] || 0) + 1;
-            }
+    <div class="section">
+        <h2>Notion of Arithmetic Average</h2>
+        <p>The arithmetic average, commonly known as the mean, is a measure of central tendency used in statistics to summarize a set of numerical values. It is calculated by taking the sum of all the values in a dataset and dividing it by the number of values.</p>
+        <h3>Median</h3>
+        <p>The median is the middle value in a dataset when the data is arranged in ascending or descending order. If the dataset has an odd number of values, the median is the middle value; if it has an even number, it is the average of the two middle values. The median is less sensitive to outliers than the arithmetic mean and is often used when the data is skewed.</p>
+        <h3>Mode</h3>
+        <p>The mode is the value that appears most frequently in a dataset. A dataset may have more than one mode (multimodal) if multiple values occur with the same highest frequency, or it may have no mode if all values are unique. The mode is useful for categorical data where the most common category is of interest.</p>
+    </div>
 
-            return { results, distribution };
-        }
+    <div class="section">
+        <h2>Computational Problems with Floating Point Representation</h2>
+        <p>While the formula for the arithmetic mean is straightforward, implementing it on a computer can lead to floating-point errors. Floating-point arithmetic is used in computers to represent real numbers with a limited number of significant digits. This limitation leads to several computational issues:</p>
+        <ul>
+            <li><strong>Rounding Errors:</strong> Computers can only store numbers with finite precision, so when a number is represented in floating-point, its value is often rounded to the nearest representable value. This can lead to small errors that accumulate over many operations, especially when adding or subtracting large numbers with small numbers.</li>
+            <li><strong>Loss of Precision:</strong> When calculating the mean, the sum of a large set of numbers can involve very large intermediate results. If some of the numbers are small relative to others, adding them together may result in the smaller numbers being "swallowed" by the larger ones, leading to a loss of precision.</li>
+            <li><strong>Catastrophic Cancellation:</strong> This is a specific problem that occurs when subtracting two nearly equal floating-point numbers. Because of rounding errors, the difference between them may lose significant digits of precision. In the context of calculating the mean, this can happen when trying to subtract the mean from individual values to compute other statistics, like variance.</li>
+        </ul>
+    </div>
 
-        // Funzione per creare o aggiornare il grafico di penetrazione
-        function updatePenetrationChart(n, m, p) {
-            const { results, distribution } = simulateCumulativePenetration(n, m, p);
-            const labels = Array.from({ length: n }, (_, i) => `Server ${i + 1}`);
-            const datasets = results.map((result, index) => ({
-                label: `Attacker ${index + 1}`,
-                data: result,
-                borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
-                fill: false,
-                stepped: true
-            }));
+    <div class="section">
+        <h2>Numerical Solution (Knuth's Approach)</h2>
+        <p>Knuth proposed various techniques and algorithms to minimize floating-point errors. One of the solutions he suggested is Kahan summation, also known as compensated summation, which improves the accuracy of summing floating-point numbers by keeping track of a small correction factor for lost low-order bits.</p>
+    </div>
 
-            if (penetrationChart) {
-                penetrationChart.data.labels = ['Start', ...labels];
-                penetrationChart.data.datasets = datasets;
-                penetrationChart.options.scales.y.max = n;
-                penetrationChart.update();
-            } else {
-                penetrationChart = new Chart(penetrationCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Start', ...labels],
-                        datasets: datasets
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                min: 0,
-                                max: n,
-                                position: 'left'
-                            }
-                        },
-                        plugins: {
-                            tooltip: { mode: 'index', intersect: false }
-                        }
-                    }
-                });
-            }
-
-            updateDistributionChart(distribution, n);
-        }
-
-        // Funzione per creare o aggiornare il grafico di distribuzione
-        function updateDistributionChart(distribution, maxServers) {
-            const distributionLabels = Array.from({ length: maxServers + 1 }, (_, i) => `${i}`);
-            const distributionData = distributionLabels.map(label => distribution[label] || 0);
-
-            if (distributionChart) {
-                distributionChart.data.labels = distributionLabels;
-                distributionChart.data.datasets[0].data = distributionData;
-                distributionChart.update();
-            } else {
-                distributionChart = new Chart(distributionCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: distributionLabels,
-                        datasets: [{
-                            label: 'Number of Attackers',
-                            data: distributionData,
-                            backgroundColor: 'rgba(0, 123, 255, 0.7)',
-                            borderColor: 'rgba(0, 123, 255, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                min: 0,
-                                ticks: { precision: 0 }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Servers Penetrated'
-                                }
-                            }
-                        },
-                        plugins: {
-                            tooltip: { mode: 'index', intersect: false }
-                        }
-                    }
-                });
-            }
-        }
-
-        // Gestore di eventi per il form
-        document.getElementById('settingsForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const n = parseInt(document.getElementById('numServers').value);
-            const m = parseInt(document.getElementById('numAttackers').value);
-            const p = parseFloat(document.getElementById('penetrationProbability').value);
-            updatePenetrationChart(n, m, p);
-        });
-
-        // Render iniziale
-        updatePenetrationChart(10, 5, 0.4);
-    </script>
 </body>
 </html>
