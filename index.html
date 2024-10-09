@@ -3,304 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Statistics and Penetration Simulation</title>
-    <!-- Includi Chart.js -->
+    <title>Penetration Simulation</title>
+    <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f4f8;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
             color: #333;
-            margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            width: 95%;
-            max-width: 850px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2, h3 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        p {
-            margin-bottom: 10px;
-            font-size: 0.95em;
-            line-height: 1.6;
-        }
-        .section {
-            background-color: #e8f0fe;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        ul {
-            padding-left: 20px;
-        }
-        ul li {
-            margin-bottom: 8px;
         }
         form {
-            text-align: center;
-            background-color: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
+            text-align: center;
         }
         label {
             font-weight: bold;
-            display: inline-block;
-            margin-right: 10px;
-            font-size: 1em;
-            color: #333;
         }
         input[type="number"] {
+            margin-right: 20px;
             padding: 8px;
-            width: 80px;
-            margin-right: 10px;
-            font-size: 0.95em;
-            border: 1px solid #ccc;
-            border-radius: 5px;
         }
         button {
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             font-size: 1em;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #45a049;
         }
         canvas {
-            display: block;
-            margin: 20px auto;
-            background-color: #f8f8f8;
+            margin-bottom: 30px;
+            background-color: #fff;
             border-radius: 8px;
-            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #chartContainer {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <!-- Sezione sulle nozioni statistiche -->
-    <h1>Basic Notions in Statistics</h1>
-
-    <div class="section">
-        <h2>Population</h2>
-        <p>In statistics, the term population refers to the entire set of individuals, items, or events that are being studied. It represents the complete group from which a sample can be drawn for research purposes.</p>
-        <p><strong>Example:</strong> If the research focuses on the heights of adult men in a country, the population would include every adult man in that country.</p>
-    </div>
-
-    <div class="section">
-        <h2>Statistical Unit</h2>
-        <p>These are the individual elements or members of a population that are the subject of observation or measurement.</p>
-        <p><strong>Example:</strong> If the research focuses on the heights of adult men in a country, each adult man would be a statistical unit.</p>
-    </div>
-
-    <div class="section">
-        <h2>Distribution</h2>
-        <p>A distribution is a function that shows the possible values for a variable and how often they occur. Distributions can be represented in various ways, including tables, graphs, or equations. The shape of a distribution (normal, skewed...) tells a lot about the data, including central tendencies and variability.</p>
-    </div>
-
-    <div class="section">
-        <h2>Frequency</h2>
-        <ul>
-            <li><strong>Absolute frequency:</strong> Refers to the number of times a particular value or category occurs in a data set.</li>
-            <li><strong>Relative frequency:</strong> Is the proportion of times a value occurs relative to the total number of observations.</li>
-            <li><strong>Percentage frequency:</strong> Expresses the relative frequency as a percentage.</li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <h2>Notion of Arithmetic Average</h2>
-        <p>The arithmetic average, commonly known as the mean, is a measure of central tendency used in statistics to summarize a set of numerical values. It is calculated by taking the sum of all the values in a dataset and dividing it by the number of values.</p>
-        <h3>Median</h3>
-        <p>The median is the middle value in a dataset when the data is arranged in ascending or descending order. If the dataset has an odd number of values, the median is the middle value; if it has an even number, it is the average of the two middle values. The median is less sensitive to outliers than the arithmetic mean and is often used when the data is skewed.</p>
-        <h3>Mode</h3>
-        <p>The mode is the value that appears most frequently in a dataset. A dataset may have more than one mode (multimodal) if multiple values occur with the same highest frequency, or it may have no mode if all values are unique. The mode is useful for categorical data where the most common category is of interest.</p>
-    </div>
-
-    <div class="section">
-        <h2>Computational Problems with Floating Point Representation</h2>
-        <p>While the formula for the arithmetic mean is straightforward, implementing it on a computer can lead to floating-point errors. Floating-point arithmetic is used in computers to represent real numbers with a limited number of significant digits. This limitation leads to several computational issues:</p>
-        <ul>
-            <li><strong>Rounding Errors:</strong> Computers can only store numbers with finite precision, so when a number is represented in floating-point, its value is often rounded to the nearest representable value. This can lead to small errors that accumulate over many operations, especially when adding or subtracting large numbers with small numbers.</li>
-            <li><strong>Loss of Precision:</strong> When calculating the mean, the sum of a large set of numbers can involve very large intermediate results. If some of the numbers are small relative to others, adding them together may result in the smaller numbers being "swallowed" by the larger ones, leading to a loss of precision.</li>
-            <li><strong>Catastrophic Cancellation:</strong> This is a specific problem that occurs when subtracting two nearly equal floating-point numbers. Because of rounding errors, the difference between them may lose significant digits of precision. In the context of calculating the mean, this can happen when trying to subtract the mean from individual values to compute other statistics, like variance.</li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <h2>Numerical Solution (Knuth's Approach)</h2>
-        <p>Knuth proposed various techniques and algorithms to minimize floating-point errors. One of the solutions he suggested is Kahan summation, also known as compensated summation, which improves the accuracy of summing floating-point numbers by keeping track of a small correction factor for lost low-order bits.</p>
-    </div>
-
-    <!-- Sezione della simulazione di penetrazione -->
     <h1>Penetration Simulation</h1>
 
-    <!-- Form per impostare i parametri -->
-    <form id="settingsForm">
+    <!-- Form for Input Parameters -->
+    <form id="simulationForm">
         <label for="numServers">Number of Servers:</label>
         <input type="number" id="numServers" value="10" min="1" required>
-        <label for="numAttackers">Number of Attackers:</label>
-        <input type="number" id="numAttackers" value="5" min="1" required>
+        <label for="numHackers">Number of Hackers:</label>
+        <input type="number" id="numHackers" value="5" min="1" required>
         <label for="penetrationProbability">Penetration Probability (0-1):</label>
-        <input type="number" id="penetrationProbability" value="0.4" step="0.1" min="0" max="1" required>
-        <button type="submit">Generate</button>
+        <input type="number" id="penetrationProbability" value="0.7" step="0.1" min="0" max="1" required>
+        <button type="submit">Start Simulation</button>
     </form>
 
-    <!-- Canvases per i grafici -->
-    <canvas id="penetrationChart" width="600" height="400"></canvas>
-    <canvas id="distributionChart" width="600" height="400"></canvas>
+    <!-- Canvas for Line Chart and Histogram -->
+    <div id="chartContainer">
+        <canvas id="lineChart" width="600" height="400"></canvas>
+        <canvas id="histogramChart" width="400" height="400"></canvas>
+    </div>
 
-    <!-- Codice JavaScript -->
+    <!-- JavaScript Code -->
     <script>
-        const penetrationCtx = document.getElementById('penetrationChart').getContext('2d');
-        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-        let penetrationChart, distributionChart;
+        let lineChart, histogramChart;
 
-        // Funzione per simulare la penetrazione cumulativa
-        function simulateCumulativePenetration(n, m, p) {
-            let results = Array(m).fill().map(() => [0]);
-            let penetrationCounts = Array(m).fill(0);
+        // Function to simulate attacks and generate results
+        function simulatePenetration(m, n, p) {
+            const results = Array.from({ length: m }, () => Array(n).fill(0));
+            const penetrationCounts = Array(m).fill(0);
 
-            for (let i = 0; i < m; i++) {
-                let cumulative = 0;
-                for (let j = 0; j < n; j++) {
+            for (let hacker = 0; hacker < m; hacker++) {
+                let successCount = 0;
+                for (let server = 0; server < n; server++) {
                     if (Math.random() < p) {
-                        cumulative += 1;
+                        successCount++;
+                        results[hacker][server] = successCount;
+                    } else {
+                        results[hacker][server] = successCount;
                     }
-                    results[i].push(cumulative);
                 }
-                penetrationCounts[i] = cumulative;
+                penetrationCounts[hacker] = successCount;
             }
-
-            // Conta il numero di attaccanti che hanno penetrato un determinato numero di server
-            const distribution = {};
-            for (let count of penetrationCounts) {
-                distribution[count] = (distribution[count] || 0) + 1;
-            }
-
-            return { results, distribution };
+            return { results, penetrationCounts };
         }
 
-        // Funzione per creare o aggiornare il grafico di penetrazione
-        function updatePenetrationChart(n, m, p) {
-            const { results, distribution } = simulateCumulativePenetration(n, m, p);
+        // Function to create or update the Line Chart
+        function updateLineChart(results, m, n) {
             const labels = Array.from({ length: n }, (_, i) => `Server ${i + 1}`);
             const datasets = results.map((result, index) => ({
-                label: `Attacker ${index + 1}`,
+                label: `Hacker ${index + 1}`,
                 data: result,
-                borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
+                borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
                 fill: false,
-                stepped: true
+                stepped: true,
+                borderWidth: 2
             }));
 
-            if (penetrationChart) {
-                penetrationChart.data.labels = ['Start', ...labels];
-                penetrationChart.data.datasets = datasets;
-                penetrationChart.options.scales.y.max = n;
-                penetrationChart.update();
+            if (lineChart) {
+                lineChart.data.labels = labels;
+                lineChart.data.datasets = datasets;
+                lineChart.update();
             } else {
-                penetrationChart = new Chart(penetrationCtx, {
+                const ctx = document.getElementById('lineChart').getContext('2d');
+                lineChart = new Chart(ctx, {
                     type: 'line',
-                    data: {
-                        labels: ['Start', ...labels],
-                        datasets: datasets
-                    },
+                    data: { labels, datasets },
                     options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
                         scales: {
                             y: {
-                                type: 'linear',
                                 min: 0,
                                 max: n,
-                                position: 'left'
-                            }
-                        },
-                        plugins: {
-                            tooltip: { mode: 'index', intersect: false }
-                        }
-                    }
-                });
-            }
-
-            updateDistributionChart(distribution, n);
-        }
-
-        // Funzione per creare o aggiornare il grafico di distribuzione
-        function updateDistributionChart(distribution, maxServers) {
-            const distributionLabels = Array.from({ length: maxServers + 1 }, (_, i) => `${i}`);
-            const distributionData = distributionLabels.map(label => distribution[label] || 0);
-
-            if (distributionChart) {
-                distributionChart.data.labels = distributionLabels;
-                distributionChart.data.datasets[0].data = distributionData;
-                distributionChart.update();
-            } else {
-                distributionChart = new Chart(distributionCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: distributionLabels,
-                        datasets: [{
-                            label: 'Number of Attackers',
-                            data: distributionData,
-                            backgroundColor: 'rgba(156, 39, 176, 0.7)',
-                            borderColor: 'rgba(156, 39, 176, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                min: 0,
-                                ticks: { precision: 0 }
+                                title: {
+                                    display: true,
+                                    text: 'Penetrations',
+                                    color: 'black',
+                                    font: { size: 14 }
+                                }
                             },
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Servers Penetrated'
+                                    text: 'Servers',
+                                    color: 'black',
+                                    font: { size: 14 }
                                 }
                             }
-                        },
-                        plugins: {
-                            tooltip: { mode: 'index', intersect: false }
                         }
                     }
                 });
             }
         }
 
-        // Gestore di eventi per il form
-        document.getElementById('settingsForm').addEventListener('submit', function(event) {
+        // Function to create or update the Histogram
+        function updateHistogramChart(penetrationCounts, n) {
+            const labels = Array.from({ length: n + 1 }, (_, i) => `${i} Servers`);
+            const counts = Array(n + 1).fill(0);
+            penetrationCounts.forEach(count => counts[count]++);
+
+            if (histogramChart) {
+                histogramChart.data.labels = labels;
+                histogramChart.data.datasets[0].data = counts;
+                histogramChart.update();
+            } else {
+                const ctx = document.getElementById('histogramChart').getContext('2d');
+                histogramChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Hacker Count',
+                            data: counts,
+                            backgroundColor: 'rgba(75, 192, 192, 1)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Hackers',
+                                    color: 'black',
+                                    font: { size: 14 }
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Penetrations',
+                                    color: 'black',
+                                    font: { size: 14 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Form submit handler to start the simulation
+        document.getElementById('simulationForm').addEventListener('submit', function (event) {
             event.preventDefault();
+
+            const m = parseInt(document.getElementById('numHackers').value);
             const n = parseInt(document.getElementById('numServers').value);
-            const m = parseInt(document.getElementById('numAttackers').value);
             const p = parseFloat(document.getElementById('penetrationProbability').value);
-            updatePenetrationChart(n, m, p);
+
+            const { results, penetrationCounts } = simulatePenetration(m, n, p);
+            updateLineChart(results, m, n);
+            updateHistogramChart(penetrationCounts, n);
         });
-
-        // Render iniziale
-        updatePenetrationChart(10, 5, 0.4);
     </script>
-
-</div>
-
 </body>
 </html>
+
