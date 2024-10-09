@@ -66,7 +66,6 @@
 
                 // Distribuzione più graduale
                 for (let server = 0; server < n; server++) {
-                    // Controlliamo la probabilità, cercando di rendere più graduale l'incremento
                     if (Math.random() < p) {
                         successCount++;
                     }
@@ -92,9 +91,15 @@
                 lineTension: 0
             }));
 
+            // Crea o aggiorna il grafico
             if (penetrationChart) {
                 penetrationChart.data.labels = labels;
                 penetrationChart.data.datasets = datasets;
+                
+                // Aggiorna dinamicamente i limiti degli assi X e Y
+                penetrationChart.options.scales.x.max = n;
+                penetrationChart.options.scales.y.max = Math.max(...penetrationCounts);
+
                 penetrationChart.update();
             } else {
                 const ctx = document.getElementById('penetrationChart').getContext('2d');
@@ -111,6 +116,8 @@
                                     display: true,
                                     text: 'Servers',
                                 },
+                                min: 0,
+                                max: n
                             },
                             y: {
                                 title: {
@@ -118,7 +125,7 @@
                                     text: 'Penetrations',
                                 },
                                 min: 0,
-                                max: n,
+                                max: Math.max(...penetrationCounts),
                                 ticks: {
                                     stepSize: 1
                                 }
@@ -141,9 +148,14 @@
             const distributionLabels = Array.from({ length: maxServers + 1 }, (_, i) => `${i}`);
             const distributionData = distributionLabels.map(label => distribution[Number(label)] || 0);
 
+            // Crea o aggiorna il grafico di distribuzione
             if (distributionChart) {
                 distributionChart.data.labels = distributionLabels;
                 distributionChart.data.datasets[0].data = distributionData;
+                
+                // Aggiorna dinamicamente i limiti dell'asse X
+                distributionChart.options.scales.x.max = maxServers;
+
                 distributionChart.update();
             } else {
                 const ctx = document.getElementById('distributionChart').getContext('2d');
@@ -173,7 +185,9 @@
                                 title: {
                                     display: true,
                                     text: 'Servers Penetrated'
-                                }
+                                },
+                                min: 0,
+                                max: maxServers
                             }
                         },
                         plugins: {
